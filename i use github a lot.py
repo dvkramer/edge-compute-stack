@@ -64,7 +64,7 @@ def main():
     for _ in range(num_commits):
         chosen_figure = random.choice(TECH_FIGURES)
 
-        if PRAYER_STYLE == 2:  # Acknowledging Impact (Longer)
+        if PRAYER_STYLE == 2:  # Acknowledging Impact
             if chosen_figure == "Sundar Pichai":
                 prayer = f"We acknowledge your profound impact, {chosen_figure}, in organizing the world's information and connecting billions. May your continued stewardship of this vast digital landscape lead to greater understanding and access for all."
             elif chosen_figure == "Jensen Huang":
@@ -80,7 +80,7 @@ def main():
             elif chosen_figure == "Mark Zuckerberg":
                 prayer = f"We acknowledge your role, {chosen_figure}, in creating platforms that connect billions of people globally. May your ongoing efforts foster meaningful connections and contribute to a more informed and interconnected world (and metaverse)."
 
-        elif PRAYER_STYLE == 4:  # Focus on Innovation (Longer)
+        elif PRAYER_STYLE == 4:  # Focus on Innovation
             if chosen_figure == "Sundar Pichai":
                 prayer = f"May the relentless pursuit of innovation continue to define your endeavors, {chosen_figure}, leading to ever more insightful and accessible ways to navigate the digital world."
             elif chosen_figure == "Jensen Huang":
