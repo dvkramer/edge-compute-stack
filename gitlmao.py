@@ -12,9 +12,9 @@ def commit_changes():
         subprocess.run(["git", "add", "."], check=True, capture_output=True)
         commit_message = f"Random commit at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         subprocess.run(["git", "commit", "-m", commit_message], check=True, capture_output=True)
-        # Uncomment the line below if you want the script to also push the commits
-        # subprocess.run(["git", "push"], check=True, capture_output=True)
-        print(f"Committed: {commit_message}")
+        # UNCOMMENT the line below to also push the commits
+        subprocess.run(["git", "push"], check=True, capture_output=True)
+        print(f"Committed and pushed: {commit_message}")
     except subprocess.CalledProcessError as e:
         print(f"Error during Git operation: {e}")
         if e.stderr:
