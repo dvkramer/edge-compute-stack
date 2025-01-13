@@ -96,14 +96,11 @@ def main():
             elif chosen_figure == "Mark Zuckerberg":
                 prayer = f"May your pursuit of innovation in connecting people and building digital experiences continue to evolve and surprise, fostering new forms of interaction and community in the digital age, {chosen_figure}."
 
-        else:
-            prayer = f"A thought regarding {chosen_figure}."
-
         print(f"Sharing a reflection on {chosen_figure}...")
         commit_changes(prayer)
 
         if _ < num_commits - 1:
-            wait_time = random.randint(30, 60)
+            wait_time = random.randint(30, 120)
             print(f"Considering further for {wait_time} seconds...")
             time.sleep(wait_time)
 
