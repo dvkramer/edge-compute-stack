@@ -2,6 +2,7 @@ import datetime
 import random
 import subprocess
 import time
+import os
 
 # --- Configuration ---
 TECH_FIGURES = [
@@ -14,27 +15,33 @@ TECH_FIGURES = [
     "Mark Zuckerberg",
 ]
 
-PRAYER_STYLE = 0  # Set to 2 or 4 to use those styles
+i_value = random.randint(0, 1)
+if i_value == 0:
+    PRAYER_STYLE = 2
+else:
+    PRAYER_STYLE = 4
 
 # --- Helper Functions ---
 def commit_changes(prayer_content):
     """Stages, commits, and pushes the changes."""
+    repo_path = r"C:\Users\derpy\OneDrive\Documents\git repo"  # Replace with your actual repo path
     try:
-        # Create a temporary file with the prayer content
-        temp_filename = "temp_prayer.txt"
+        # Construct the full path to the temporary file
+        temp_filename = os.path.join(repo_path, "temp_prayer.txt")
+
         with open(temp_filename, "w") as f:
             f.write(prayer_content)
 
-        subprocess.run(["git", "add", temp_filename], check=True, capture_output=True)
+        # Run git commands in the repository directory
+        subprocess.run(["git", "add", temp_filename], check=True, capture_output=True, cwd=repo_path)
         commit_message = f"A considered reflection at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-        subprocess.run(["git", "commit", "-m", commit_message], check=True, capture_output=True)
-        # Uncomment the line below if you want the script to also push the commits
-        subprocess.run(["git", "push"], check=True, capture_output=True)
-        print(f"Committed: {commit_message}")
+        subprocess.run(["git", "commit", "-m", commit_message], check=True, capture_output=True, cwd=repo_path)
+        subprocess.run(["git", "push"], check=True, capture_output=True, cwd=repo_path)
+        print(f"Committed and pushed: {commit_message}")
 
         # Clean up the temporary file
-        import os
-        os.remove(temp_filename)
+        if os.path.exists(temp_filename):
+            os.remove(temp_filename)
 
     except subprocess.CalledProcessError as e:
         print(f"Error during Git operation: {e}")
@@ -44,6 +51,8 @@ def commit_changes(prayer_content):
             print(f"Stdout: {e.stdout.decode()}")
     except FileNotFoundError:
         print("Error: Git command not found. Ensure Git is installed and in your PATH.")
+    except PermissionError as e:
+        print(f"PermissionError: {e}. Ensure the script has write access to the repository directory.")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
@@ -52,7 +61,7 @@ def main():
     num_commits = random.randint(0, 3)
     print(f"Submitting {num_commits} reflections this run.")
 
-    for i in range(num_commits):
+    for _ in range(num_commits):
         chosen_figure = random.choice(TECH_FIGURES)
 
         if PRAYER_STYLE == 2:  # Acknowledging Impact (Longer)
@@ -93,7 +102,7 @@ def main():
         print(f"Sharing a reflection on {chosen_figure}...")
         commit_changes(prayer)
 
-        if i < num_commits - 1:
+        if _ < num_commits - 1:
             wait_time = random.randint(30, 60)
             print(f"Considering further for {wait_time} seconds...")
             time.sleep(wait_time)
