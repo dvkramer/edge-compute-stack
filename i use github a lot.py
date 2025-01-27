@@ -89,12 +89,16 @@ COMMIT_MESSAGES = [
 def commit_changes(prayer_content):
     """Stages, commits, and pushes the changes."""
     repo_path = r"C:\Users\derpy\OneDrive\Documents\git repo"  # Replace with your actual repo path
+    temp_filename = os.path.join(repo_path, "shard_distribution.txt")
+
     try:
         # Construct the full path to the temporary file
-        temp_filename = os.path.join(repo_path, "shard_distribution.txt")
+
+        timestamp = datetime.datetime.now().isoformat() # Get current timestamp
+        file_content_with_timestamp = f"{prayer_content}\n\nTimestamp: {timestamp}" # Add timestamp to content
 
         with open(temp_filename, "w") as f:
-            f.write(prayer_content)
+            f.write(file_content_with_timestamp) # Write content with timestamp
 
         # Run git commands in the repository directory
         subprocess.run(["git", "add", temp_filename], check=True, capture_output=True, cwd=repo_path)
