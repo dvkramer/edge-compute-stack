@@ -87,13 +87,12 @@ COMMIT_MESSAGES = [
 
 # --- Helper Functions ---
 def commit_changes(prayer_content):
-    """Stages, commits, and pushes the changes."""
+    """Stages, commits, and pushes the changes with pull fallback."""
     repo_path = r"C:\Users\derpy\OneDrive\Documents\git repo"  # Replace with your actual repo path
     temp_filename = os.path.join(repo_path, "shard_distribution.txt")
 
     try:
         # Construct the full path to the temporary file
-
         timestamp = datetime.datetime.now().isoformat() # Get current timestamp
         file_content_with_timestamp = f"{prayer_content}\n\nTimestamp: {timestamp}" # Add timestamp to content
 
@@ -104,15 +103,34 @@ def commit_changes(prayer_content):
         subprocess.run(["git", "add", temp_filename], check=True, capture_output=True, cwd=repo_path)
         commit_message = random.choice(COMMIT_MESSAGES)  # Randomly select a commit message
         subprocess.run(["git", "commit", "-m", commit_message], check=True, capture_output=True, cwd=repo_path)
-        subprocess.run(["git", "push"], check=True, capture_output=True, cwd=repo_path)
-        print(f"Committed and pushed: {commit_message}")
+
+        try: # Try to push, and handle potential rejection
+            subprocess.run(["git", "push"], check=True, capture_output=True, cwd=repo_path)
+            print(f"Committed and pushed: {commit_message}")
+        except subprocess.CalledProcessError as push_error:
+            if "fetch first" in push_error.stderr.decode().lower() or " Updates were rejected because the remote contains work" in push_error.stderr.decode(): # Check for rejection error
+                print("Push rejected due to remote changes. Attempting to pull and then push again...")
+                try:
+                    subprocess.run(["git", "pull"], check=True, capture_output=True, cwd=repo_path) # Pull first
+                    subprocess.run(["git", "push"], check=True, capture_output=True, cwd=repo_path) # Retry push
+                    print(f"Pulled, committed, and pushed successfully: {commit_message}")
+                except subprocess.CalledProcessError as pull_push_error:
+                    print(f"Error during pull or retry push after pull: {pull_push_error}")
+                    if pull_push_error.stderr:
+                        print(f"Stderr (pull/retry push): {pull_push_error.stderr.decode()}")
+                    if pull_push_error.stdout:
+                        print(f"Stdout (pull/retry push): {pull_push_error.stdout.decode()}")
+            else: # If it's some other push error, re-raise the original error
+                print(f"Original push error was not a 'fetch first' rejection. Re-raising.")
+                raise push_error
+
 
         # Clean up the temporary file
         if os.path.exists(temp_filename):
             os.remove(temp_filename)
 
     except subprocess.CalledProcessError as e:
-        print(f"Error during Git operation: {e}")
+        print(f"Error during Git operation (add or commit): {e}")
         if e.stderr:
             print(f"Stderr: {e.stderr.decode()}")
         if e.stdout:
@@ -126,8 +144,8 @@ def commit_changes(prayer_content):
 
 # --- Main Logic ---
 def main():
-    num_commits = random.randint(0, 3)
-    print(f"Submitting {num_commits} reflections this run.")
+    num_commits = 1
+    print(f"Submitting {num_commits} reflection this run.")
 
     for _ in range(num_commits):
         chosen_figure = random.choice(TECH_FIGURES)
@@ -282,11 +300,6 @@ def main():
 
         print(f"Sharing a reflection on {chosen_figure}...")
         commit_changes(prayer)
-
-        if _ < num_commits - 1:
-            wait_time = random.randint(30, 120)
-            print(f"Considering further for {wait_time} seconds...")
-            time.sleep(wait_time)
 
 if __name__ == "__main__":
     main()
